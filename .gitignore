@@ -1,0 +1,17 @@
+# Python cache and temp files
+__pycache__/
+*.pyc
+
+# Model weights and checkpoints
+*.pt
+*.bin
+*.safetensors
+
+# Large or intermediate data (edit as needed)
+/data/*
+/src/models/*
+/log/
+save/
+*.log
+*.jsonl
+*.csv
