@@ -5,7 +5,6 @@ import os
 
 MODEL_PATH = "/data/s3905993/ECRHMAS/src/models/intent_classifier"
 
-# Load label mapping
 with open(os.path.join(MODEL_PATH, "intent_labels.json")) as f:
     INTENT_LABELS = json.load(f)
 
