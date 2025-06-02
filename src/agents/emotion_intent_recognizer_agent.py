@@ -36,7 +36,7 @@ class EmotionIntentRecognizer:
         Returns:
             dict with keys: emotion, intent, emotion_score, intent_score
         """
-        # Select last N turns
+        
         context = " ".join(dialogue_history[-self.history_turns:])
 
         # --- Emotion classification ---
