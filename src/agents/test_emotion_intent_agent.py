@@ -1,6 +1,5 @@
 from emotion_intent_recognizer_agent import EmotionIntentRecognizer
 
-# Example labels (replace with your true label lists)
 EMOTION_LABELS = ['happy', 'nostalgia', 'negative', 'neutral', 'like', 'curious', 'grateful', 'agreement', 'surprise']
 INTENT_LABELS = ['seeking_recommendation', 'feedback', 'chit_chat', 'other']
 
