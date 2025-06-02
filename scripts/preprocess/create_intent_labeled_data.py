@@ -1,7 +1,6 @@
 import json
 import re
 
-# Paths
 DATA_PATH = "/data/s3905993/ECRMAS/ECR-main/src_emo/data/redial/train_data_processed.jsonl"
 OUT_PATH = "/data/s3905993/ECRHMAS/src/data/train_intent_labeled.jsonl"
 
