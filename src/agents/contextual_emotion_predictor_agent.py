@@ -35,7 +35,7 @@ class ContextualEmotionPredictor:
         dialogue_history: list of strings (alternating user/system)
         Returns: dict: {'emotion': str, 'emotion_score': dict}
         """
-        # Use the last N turns (default 3)
+
         context = " ".join(dialogue_history[-self.context_turns:])
 
         inputs = self.tokenizer(
