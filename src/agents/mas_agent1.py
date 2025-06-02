@@ -30,7 +30,7 @@ class EmotionIntentRecognizerMAS:
         Returns:
             dict: {'emotion': str, 'intent': str, 'intent_score': dict}
         """
-        # Use last N turns as context
+        
         context = " ".join(dialogue_history[-self.history_turns:])
 
         # --- Intent classification ---
