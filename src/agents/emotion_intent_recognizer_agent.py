@@ -21,12 +21,14 @@ class EmotionIntentRecognizer:
         self.emotion_tokenizer = RobertaTokenizer.from_pretrained(emotion_model_path)
         self.emotion_model = RobertaForSequenceClassification.from_pretrained(emotion_model_path)
         self.emotion_model.to(self.device)
+        self.emotion_model.eval()
         self.emotion_labels = emotion_labels
 
         # Load intent model & tokenizer
         self.intent_tokenizer = RobertaTokenizer.from_pretrained(intent_model_path)
         self.intent_model = RobertaForSequenceClassification.from_pretrained(intent_model_path)
         self.intent_model.to(self.device)
+        self.intent_model.eval()
         self.intent_labels = intent_labels
 
     def process(self, dialogue_history):

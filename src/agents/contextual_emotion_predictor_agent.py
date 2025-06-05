@@ -23,9 +23,14 @@ class ContextualEmotionPredictor:
         self.debug = debug
         self.label_list = label_list
 
-        # Load tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        # Load tokenizer and model. Using the same model_path ensures the
+        # tokenizer matches the fine-tuned model checkpoint rather than the
+        # base DialoGPT tokenizer.
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if getattr(self.tokenizer, "pad_token", None) is None:
+            # Some conversational models do not define a pad token. For
+            # classification we fall back to the EOS token for padding.
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
         self.model.to(self.device)
         self.model.eval()
