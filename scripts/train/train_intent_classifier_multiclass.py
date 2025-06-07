@@ -13,7 +13,7 @@ EPOCHS = 3
 LR = 2e-5
 MAX_LEN = 128
 
-# Define your intent label set
+#defining intent label set
 INTENT_LABELS = ["seeking_recommendation", "feedback", "chit_chat", "other"]
 label2idx = {label: i for i, label in enumerate(INTENT_LABELS)}
 idx2label = {i: label for label, i in label2idx.items()}
@@ -78,7 +78,7 @@ def train():
     os.makedirs(MODEL_SAVE_PATH, exist_ok=True)
     model.save_pretrained(MODEL_SAVE_PATH)
     tokenizer.save_pretrained(MODEL_SAVE_PATH)
-    # Save label mapping for inference
+
     with open(os.path.join(MODEL_SAVE_PATH, "intent_labels.json"), "w") as f:
         json.dump(INTENT_LABELS, f)
     print(f"Model and label mapping saved to: {MODEL_SAVE_PATH}")
