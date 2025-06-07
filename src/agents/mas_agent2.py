@@ -26,7 +26,7 @@ class KnowledgeAwareResponderMAS:
         self.dialogpt_tokenizer = AutoTokenizer.from_pretrained("/data/s3905993/ECRHMAS/src/models/emotion_dialoGPT/")
         self.dialogpt_model = AutoModelForCausalLM.from_pretrained("/data/s3905993/ECRHMAS/src/models/emotion_dialoGPT/").to(self.device)
 
-        # Load movie ID <-> name mapping (lists, aligned by index)
+        #loading movie ID <-> name mapping (lists, aligned by index)
         with open(movie_ids_path, "r") as f:
             self.movie_ids = json.load(f)
         with open(movie_names_path, "r") as f:
@@ -41,7 +41,7 @@ class KnowledgeAwareResponderMAS:
             with open(movie_genres_path, "r") as f:
                 self.movie_genres = json.load(f)
 
-        # Load Knowledge Base
+        #loading Knowledge Base
         self.movie_kb = {}
         if movie_kb_path and os.path.exists(movie_kb_path):
             with open(movie_kb_path, "r") as f:
@@ -97,13 +97,12 @@ class KnowledgeAwareResponderMAS:
         return random.choice(candidate_indices)
     
     def generate_dialogpt_response(self, context: list, knowledge: str = "", max_new_tokens: int = 60) -> str:
-        # Flatten dialogue context into a single string (keep User/System tags)
         history = "\n".join(context)
         prompt = history
         if knowledge:
             prompt += f"\n[KNOWLEDGE]: {knowledge}"
 
-        # Tokenize and generate
+        #tokenize and generate
         inputs = self.dialogpt_tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         with torch.no_grad():
@@ -119,26 +118,24 @@ class KnowledgeAwareResponderMAS:
         return response.strip()
 
     def generate_response(self, recommended_movie: Dict[str, Any], knowledge_used: Dict[str, Any], dialogue_context: list) -> str:
-        # If knowledge has review snippets, concatenate a short version
         review = ""
         if knowledge_used and "reviews" in knowledge_used and knowledge_used["reviews"]:
-            # Concatenate first review title and first 1-2 sentences
             review_obj = knowledge_used["reviews"][0]
             review = review_obj.get("title", "")
             if review_obj.get("content"):
                 review += ": " + " ".join(review_obj["content"][:1])
 
-        # Optionally, include movie name/director in knowledge
+        #optionally, including movie name/director in knowledge
         movie_facts = ""
         if recommended_movie:
             movie_facts += f"{recommended_movie['movie_name']} ({recommended_movie.get('year', '')}), genres: {', '.join(recommended_movie.get('genres', []) or [])}."
         knowledge_for_prompt = f"{movie_facts} {review}".strip()
 
-        # Use DialogGPT to generate the actual response
+        #DialogGPT to generate the actual response
         return self.generate_dialogpt_response(dialogue_context, knowledge=knowledge_for_prompt)
 
     def process(self, dialogue_context: List[str], user_state: Dict[str, Any]) -> Dict[str, Any]:
-        # Predict emotion using the last user utterance (assume user is always last speaker)
+        #predicting emotion using the last user utterance (assume user is always last speaker)
         if dialogue_context:
             user_utterances = [utt for utt in dialogue_context if utt.lower().startswith("user:")]
             if user_utterances:
