@@ -1,11 +1,10 @@
 import json
 import re
 
-# Paths
 DATA_PATH = "/data/s3905993/ECRMAS/ECR-main/src_emo/data/redial/train_data_processed.jsonl"
 OUT_PATH = "/data/s3905993/ECRHMAS/src/data/train_intent_labeled.jsonl"
 
-# Heuristics for intent assignment
+#heuristic for intent assignments
 feedback_phrases = ["thank you", "thanks", "appreciate", "that's helpful", "helpful", "grateful"]
 chitchat_phrases = ["hello", "hi", "how are you", "what's up", "goodbye", "bye", "see you"]
 recommendation_phrases = [
@@ -15,7 +14,7 @@ recommendation_phrases = [
 
 def assign_intent(sample):
     resp = sample.get("resp", "").lower()
-    # seeking_recommendation if 'rec' present and non-empty OR contains recommendation-request phrase
+    #seeking_recommendation if 'rec' present and non-empty OR contains recommendation-request phrase
     if (sample.get("rec") and len(sample["rec"]) > 0) or any(phrase in resp for phrase in recommendation_phrases):
         return "seeking_recommendation"
     if any(phrase in resp for phrase in feedback_phrases):
