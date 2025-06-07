@@ -17,13 +17,13 @@ class EmotionIntentRecognizer:
         self.history_turns = history_turns
         self.debug = debug
 
-        # Load emotion model & tokenizer
+        #loading emotion model & tokenizer
         self.emotion_tokenizer = RobertaTokenizer.from_pretrained(emotion_model_path)
         self.emotion_model = RobertaForSequenceClassification.from_pretrained(emotion_model_path)
         self.emotion_model.to(self.device)
         self.emotion_labels = emotion_labels
 
-        # Load intent model & tokenizer
+        #loading intent model & tokenizer
         self.intent_tokenizer = RobertaTokenizer.from_pretrained(intent_model_path)
         self.intent_model = RobertaForSequenceClassification.from_pretrained(intent_model_path)
         self.intent_model.to(self.device)
@@ -36,7 +36,7 @@ class EmotionIntentRecognizer:
         Returns:
             dict with keys: emotion, intent, emotion_score, intent_score
         """
-        # Select last N turns
+
         context = " ".join(dialogue_history[-self.history_turns:])
 
         # --- Emotion classification ---
