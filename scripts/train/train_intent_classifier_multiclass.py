@@ -5,7 +5,7 @@ from transformers import RobertaTokenizer, RobertaForSequenceClassification, Ada
 from tqdm import tqdm
 import os
 
-# SETTINGS
+#SETTINGS
 DATA_PATH = "/data/s3905993/ECRHMAS/src/data/train_intent_labeled.jsonl"
 MODEL_SAVE_PATH = "/data/s3905993/ECRHMAS/src/models/intent_classifier"
 BATCH_SIZE = 16
