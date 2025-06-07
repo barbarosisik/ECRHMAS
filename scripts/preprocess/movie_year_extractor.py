@@ -15,7 +15,7 @@ for name in movie_names:
     if match:
         movie_years.append(int(match.group(1)))
     else:
-        # Use 0 or None if year missing (handle later in code)
+        #using 0 or None if year missing
         movie_years.append(None)
 
 with open(OUT_PATH, "w") as f:
