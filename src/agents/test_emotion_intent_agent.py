@@ -1,6 +1,6 @@
 from emotion_intent_recognizer_agent import EmotionIntentRecognizer
 
-# Example labels (replace with your true label lists)
+#example labels needs to align with the original labels list
 EMOTION_LABELS = ['happy', 'nostalgia', 'negative', 'neutral', 'like', 'curious', 'grateful', 'agreement', 'surprise']
 INTENT_LABELS = ['seeking_recommendation', 'feedback', 'chit_chat', 'other']
 
@@ -17,7 +17,6 @@ agent = EmotionIntentRecognizer(
     device="cpu"
 )
 
-# Example dialogue
 dialogue = [
     "System: What kind of movies do you like?",
     "User: I love old movies, especially ones from my childhood.",
