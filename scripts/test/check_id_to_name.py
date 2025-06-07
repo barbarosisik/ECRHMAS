@@ -1,4 +1,3 @@
-# Save as check_id_to_name.py
 import sys, json
 
 movie_id = int(sys.argv[1])
