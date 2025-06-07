@@ -2,7 +2,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
 model_path = "/data/s3905993/ECRHMAS/src/models/emotion_dialoGPT"
-# Try with CPU first
 device = torch.device("cpu")
 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
