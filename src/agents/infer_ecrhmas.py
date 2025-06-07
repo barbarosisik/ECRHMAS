@@ -3,8 +3,8 @@ import os
 import json
 from tqdm.auto import tqdm
 
-from mas_agent1 import IntentEmotionRecognizerMAS      # You must have this as Agent 1
-from mas_agent2 import KnowledgeAwareResponderMAS      # As you finalized above
+from mas_agent1 import IntentEmotionRecognizerMAS
+from mas_agent2 import KnowledgeAwareResponderMAS
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -56,7 +56,7 @@ def main():
 
     for sample in tqdm(test_samples, desc="Running ECRHMAS Inference"):
         # --- Prepare context ---
-        context = sample["context"]  # Should be a list of dialogue utterances
+        context = sample["context"]
 
         # --- Agent 1: Recognize intent + emotion (from gold label or classifier as needed) ---
         user_utt = context[-1] if context else ""
@@ -65,7 +65,7 @@ def main():
         # --- Agent 2: Generate recommendation + response ---
         agent2_result = agent2.process(
             context,
-            agent1_result  # user_state: {'intent', 'intent_score', 'emotion', 'emotion_score'}
+            agent1_result
         )
 
         # --- Compose result ---
@@ -75,8 +75,8 @@ def main():
             "recommended_items": agent2_result.get("recommended_items"),
             "knowledge_used": agent2_result.get("knowledge_used"),
             "response": agent2_result.get("response"),
-            "ground_truth_response": sample.get("resp", ""),  # gold response
-            "ground_truth_rec": sample.get("rec", None),      # gold movie (if available)
+            "ground_truth_response": sample.get("resp", ""),
+            "ground_truth_rec": sample.get("rec", None),
             "agent_logs": agent2_result.get("agent_logs", {})
         }
         results.append(entry)
