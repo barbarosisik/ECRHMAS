@@ -1,6 +1,5 @@
 import json
 
-# List of your 5 batch files in order
 PARTS = [
     "/data/s3905993/ECRHMAS/data/redial_gen/movie_genres_part1.json",
     "/data/s3905993/ECRHMAS/data/redial_gen/movie_genres_part2.json",
