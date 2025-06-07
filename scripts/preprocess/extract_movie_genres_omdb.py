@@ -2,7 +2,7 @@ import json
 import requests
 import time
 
-# List your API keys here, order matters!
+#api keys I used to extract
 API_KEYS = [
     "c23d62e3",
     "4ecbdf4c",
@@ -10,7 +10,7 @@ API_KEYS = [
     "fff21664",
     "385416ad"
 ]
-BATCH_SIZE = 1000  # Movies per API key
+BATCH_SIZE = 1000  #keys limited to 1000 daily.
 
 MOVIE_NAME_PATH = "/data/s3905993/ECRHMAS/data/redial_gen/movie_name.json"
 MOVIE_YEAR_PATH = "/data/s3905993/ECRHMAS/data/redial_gen/movie_years.json"
@@ -50,9 +50,8 @@ for batch_num in range(num_batches):
             print(f"Error fetching genre for: {name} - {e}")
         genres_all.append(genres)
         print(f"{i+1}/{total_movies}: {name} ({year}) -> {genres}")
-        time.sleep(0.2)  # Stay friendly to OMDb
+        time.sleep(0.2)
 
-    # Save the current batch to its own file
     out_file = f"{OUT_BASE}{batch_num+1}.json"
     with open(out_file, "w") as f:
         json.dump(genres_all, f)
