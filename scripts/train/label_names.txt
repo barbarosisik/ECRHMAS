@@ -1,0 +1,9 @@
+like
+negative
+curious
+grateful
+neutral
+happy
+surprise
+nostalgia
+agreement

@@ -1,0 +1,44 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Logs and outputs
+*.log
+*.out
+*.err
+
+# Checkpoints and models (do NOT push big models to GitHub!)
+*.pt
+*.bin
+*.h5
+*.ckpt
+*.pth
+*.npy
+*.npz
+*.pkl
+
+# Models, datasets, results
+models/
+results/
+data/
+*.jsonl
+
+# Environment and build
+.env
+*.egg-info/
+dist/
+build/
+*.tar.gz
+
+# VSCode and OS
+.vscode/
+.DS_Store
+
+# Other editors/OS
+*.swp
+*.bak
+Thumbs.db
