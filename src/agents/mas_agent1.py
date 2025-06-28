@@ -19,11 +19,7 @@ class IntentEmotionRecognizerMAS:
         self.history_turns = history_turns
         self.debug = debug
 
-<<<<<<< HEAD
         #intent classifier
-=======
-        #loading intent classifier
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
         self.intent_tokenizer = RobertaTokenizer.from_pretrained(intent_model_path)
         self.intent_model = RobertaForSequenceClassification.from_pretrained(intent_model_path)
         self.intent_model.to(self.device)
@@ -46,11 +42,6 @@ class IntentEmotionRecognizerMAS:
         """
         #intent(using last N turns as context)
         context = " ".join(dialogue_history[-self.history_turns:])
-<<<<<<< HEAD
-=======
-
-        #Intent prediction (RoBERTa)
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
         intent_inputs = self.intent_tokenizer(
             context, return_tensors="pt", truncation=True, padding=True, max_length=128
         )
@@ -89,13 +80,8 @@ class IntentEmotionRecognizerMAS:
             print(f"Emotion scores: {emotion_score}")
 
         return {
-<<<<<<< HEAD
             "emotion": top_emotion,
             "emotion_score": emotion_score,
-=======
-            "emotion": gold_emotion_label,
-            "emotion_score": {gold_emotion_label: 1},
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
             "intent": top_intent,
             "intent_score": intent_score,
         }

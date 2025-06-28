@@ -31,11 +31,7 @@ class KnowledgeAwareResponderMAS:
             self.dialogpt_tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large")
             self.dialogpt_model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large").to(self.device)
 
-<<<<<<< HEAD
-        #loading movie ID - name mapping
-=======
-        #loading movie ID <-> name mapping (lists, aligned by index)
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
+        #movie ID - name mapping
         with open(movie_ids_path, "r") as f:
             self.movie_ids = json.load(f)
         with open(movie_names_path, "r") as f:
@@ -50,7 +46,7 @@ class KnowledgeAwareResponderMAS:
             with open(movie_genres_path, "r") as f:
                 self.movie_genres = json.load(f)
 
-        #loading Knowledge Base
+        #knowledge base
         self.movie_kb = {}
         if movie_kb_path and os.path.exists(movie_kb_path):
             with open(movie_kb_path, "r") as f:
@@ -66,6 +62,19 @@ class KnowledgeAwareResponderMAS:
             "bored": ["short", "animation", "comedy", "adventure"],
             "other": ["action", "adult", "adventure", "animation", "biography", "comedy", "crime", "documentary", "drama", "family", "fantasy", "film-noir", "history", "horror", "music", "musical", "mystery", "n/a", "news", "reality-tv", "romance", "sci-fi", "short", "sport", "talk-show", "thriller", "war", "western"]
         }
+
+        #fallback templates to avoid similar response structure
+        self.fallback_templates = [
+            "I recommend {movie} because it matches your current feelings.",
+            "{movie} would be a wonderful pick given your mood.",
+            "Considering how you're feeling, {movie} is a great choice.",
+            "If you want something that fits your emotion, try {movie}.",
+            "{movie} is a movie I think you'll appreciate right now.",
+            "Since you're feeling {emotion}, {movie} could be a perfect fit.",
+            "You might enjoy {movie}; it suits your mood.",
+            "How about watching {movie}? It could be just right for you.",
+            "I suggest {movie} for your current mood."
+        ]
 
     def predict_emotion(self, text: str) -> str:
         inputs = self.emotion_tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(self.device)
@@ -92,7 +101,6 @@ class KnowledgeAwareResponderMAS:
         elif self.movie_genres and emotion in self.EMOTION_TO_GENRES:
             preferred_genres = set(self.EMOTION_TO_GENRES[emotion])
             filter_indices = [i for i in filter_indices if self.movie_genres[i] and any(g.lower() in preferred_genres for g in self.movie_genres[i])]
-
         if mentioned:
             filter_indices = [i for i in filter_indices if self.movie_names[i] not in mentioned]
         return filter_indices
@@ -104,93 +112,102 @@ class KnowledgeAwareResponderMAS:
         if not candidate_indices:
             return None
         return random.choice(candidate_indices)
-    
-<<<<<<< HEAD
-    def generate_dialogpt_response(self, context: list, knowledge: str = "", user_emotion: str = "", max_new_tokens: int = 80) -> str:
-        prompt = f"User feels {user_emotion}.\n"  #injecting user emotion
-        prompt += "\n".join(context)
-        if knowledge:
-            prompt += f"\n[KNOWLEDGE]: {knowledge}"
 
-        #Debug prints for knowledge integration
+    def generate_dialogpt_response(
+        self,
+        context: list,
+        knowledge: str = "",
+        user_emotion: str = "",
+        max_new_tokens: int = 40
+    ) -> str:
+        FEWSHOT = (
+            "Example 1:\n"
+            "<USER_EMOTION> Happy </USER_EMOTION>\n"
+            "<DIALOGUE_CONTEXT>\n"
+            "User: Hi! I feel great, can you suggest a comedy?\n"
+            "Assistant: Sure! You might enjoy The Grand Budapest Hotel (2014), it's hilarious and perfect for a good mood.\n"
+            "</DIALOGUE_CONTEXT>\n\n"
+            "Example 2:\n"
+            "<USER_EMOTION> Nostalgia </USER_EMOTION>\n"
+            "<DIALOGUE_CONTEXT>\n"
+            "User: I want to rewatch something classic from my childhood.\n"
+            "Assistant: How about The Lion King (1994)? It's a beloved classic that brings back memories.\n"
+            "</DIALOGUE_CONTEXT>\n\n"
+        )
+        #structured prompt building
+        prompt = (
+            FEWSHOT +
+            "You are an empathetic movie assistant. Provide a concise, specific, and empathetic movie recommendation. "
+            "Always explicitly mention the movie name, and vary your phrasing. "
+            "Tailor your response to the user's emotional state and the movie knowledge provided.\n\n"
+            f"<USER_EMOTION> {user_emotion.capitalize()} </USER_EMOTION>\n"
+            "<DIALOGUE_CONTEXT>\n"
+        )
+        for i, utter in enumerate(context):
+            speaker = "User" if i % 2 == 0 else "Assistant"
+            prompt += f"{speaker}: {utter}\n"
+        prompt += "</DIALOGUE_CONTEXT>\n"
+        if knowledge:
+            prompt += f"<MOVIE_KNOWLEDGE>\n{knowledge.strip()}\n</MOVIE_KNOWLEDGE>\n"
+        prompt += (
+            "<RESPONSE_STYLE> Concise (max 2 sentences). Explicitly mention the recommended movie name and "
+            "briefly explain why it matches the user's feelings. </RESPONSE_STYLE>\n"
+            "<RESPONSE>\n"
+        )
         if self.debug:
             print("\n[DEBUG] FINAL PROMPT SENT TO DialogGPT:\n", prompt)
             print("[DEBUG] TOKENIZED LENGTH:", len(self.dialogpt_tokenizer(prompt).input_ids))
-
-=======
-    def generate_dialogpt_response(self, context: list, knowledge: str = "", max_new_tokens: int = 60) -> str:
-        history = "\n".join(context)
-        prompt = history
-        if knowledge:
-            prompt += f"\n[KNOWLEDGE]: {knowledge}"
-
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
-        #tokenize and generate
         inputs = self.dialogpt_tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        print("device:", next(self.dialogpt_model.parameters()).device)
-        print("inputs['input_ids'].device:", inputs["input_ids"].device)
-        print("inputs['input_ids'].shape:", inputs["input_ids"].shape)
         with torch.no_grad():
             outputs = self.dialogpt_model.generate(
                 inputs["input_ids"],
-                max_new_tokens=80,
-                #max_new_tokens=max_new_tokens,
+                max_new_tokens=max_new_tokens,
                 pad_token_id=self.dialogpt_tokenizer.eos_token_id,
                 do_sample=True,
-                temperature=0.8,
-                top_p=0.9,
-                repetition_penalty=1.3,
-                no_repeat_ngram_size=3,
+                temperature=0.7,
+                top_p=0.85,
+                repetition_penalty=1.1,
+                no_repeat_ngram_size=4,
                 early_stopping=True,
-                top_k=50
+                top_k=40
             )
-        response = self.dialogpt_tokenizer.decode(outputs[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
+        response = self.dialogpt_tokenizer.decode(
+            outputs[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True
+        )
         return response.strip()
-<<<<<<< HEAD
-    
+
     def generate_response(self, recommended_movie, knowledge_used, dialogue_context, user_emotion=""):
-    #def generate_response(self, recommended_movie: Dict[str, Any], knowledge_used: Dict[str, Any], dialogue_context: list) -> str:
-        review = ""
-        if knowledge_used and "reviews" in knowledge_used and knowledge_used["reviews"]:
-            #concatenate first review title and first 1-2 sentences
-=======
-
-    def generate_response(self, recommended_movie: Dict[str, Any], knowledge_used: Dict[str, Any], dialogue_context: list) -> str:
-        review = ""
-        if knowledge_used and "reviews" in knowledge_used and knowledge_used["reviews"]:
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
-            review_obj = knowledge_used["reviews"][0]
-            review = review_obj.get("title", "")
-            if review_obj.get("content"):
-                review += ": " + " ".join(review_obj["content"][:1])
-
-<<<<<<< HEAD
-=======
-        #optionally, including movie name/director in knowledge
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
-        movie_facts = ""
+        knowledge_parts = []
+        movie_name = recommended_movie['movie_name'] if recommended_movie else "a movie"
         if recommended_movie:
-            movie_facts += f"{recommended_movie['movie_name']} ({recommended_movie.get('year', '')}), genres: {', '.join(recommended_movie.get('genres', []) or [])}."
-        knowledge_for_prompt = f"{movie_facts} {review}".strip()
-
-<<<<<<< HEAD
-        #using DialogGPT to generate the actual response
-        return self.generate_dialogpt_response(
+            knowledge_parts.append(f"- Title: {recommended_movie['movie_name']}")
+            if recommended_movie.get('year'):
+                knowledge_parts.append(f"- Year: {recommended_movie['year']}")
+            if recommended_movie.get('genres'):
+                genres = ', '.join(recommended_movie['genres'])
+                knowledge_parts.append(f"- Genres: {genres}")
+        if knowledge_used and "reviews" in knowledge_used and knowledge_used["reviews"]:
+            review_obj = knowledge_used["reviews"][0]
+            review_title = review_obj.get("title", "")
+            review_content = " ".join(review_obj.get("content", [])[:1])
+            review_full = f"{review_title}: {review_content}".strip()
+            knowledge_parts.append(f"- Review: {review_full}")
+        knowledge_for_prompt = "\n".join(knowledge_parts)
+        #generated response
+        response = self.generate_dialogpt_response(
             dialogue_context,
             knowledge=knowledge_for_prompt,
-            user_emotion=user_emotion)
+            user_emotion=user_emotion
+        )
+        #if movie name not mentioned, fallback to random template
+        if movie_name.lower() not in response.lower():
+            emotion = user_emotion if user_emotion else "your current mood"
+            template = random.choice(self.fallback_templates)
+            response = template.format(movie=movie_name, emotion=emotion)
+        return response
 
     def process(self, dialogue_context, user_state):
-    #def process(self, dialogue_context: List[str], user_state: Dict[str, Any]) -> Dict[str, Any]:
-        #predicting emotion using the last user utterance (assuming user is always last speaker)
-=======
-        #DialogGPT to generate the actual response
-        return self.generate_dialogpt_response(dialogue_context, knowledge=knowledge_for_prompt)
-
-    def process(self, dialogue_context: List[str], user_state: Dict[str, Any]) -> Dict[str, Any]:
-        #predicting emotion using the last user utterance (assume user is always last speaker)
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
         if dialogue_context:
             user_utterances = [utt for utt in dialogue_context if utt.lower().startswith("user:")]
             if user_utterances:
@@ -213,7 +230,6 @@ class KnowledgeAwareResponderMAS:
                                  "movie_name": self.movie_names[chosen_idx],
                                  "year": self.movie_years[chosen_idx] if self.movie_years else None,
                                  "genres": self.movie_genres[chosen_idx] if self.movie_genres else None}
-
             knowledge_used = self.retrieve_knowledge(self.movie_names[chosen_idx])
             recommended_items.append(recommended_movie)
 

@@ -6,30 +6,19 @@ from transformers import RobertaTokenizer, RobertaForSequenceClassification, Ada
 from tqdm import tqdm
 from sklearn.metrics import classification_report
 
-<<<<<<< HEAD
 #settings
 TRAIN_PATH = "/data/s3905993/ECRHMAS/data/redial/intent_train_train.jsonl"
 VALID_PATH = "/data/s3905993/ECRHMAS/data/redial/intent_train_valid.jsonl"
 LABELS_PATH = "/data/s3905993/ECRHMAS/data/redial/intent_label_names.json"
 MODEL_SAVE_PATH = "/data/s3905993/ECRHMAS/src/models/roberta_intent_classifier"
-=======
-#SETTINGS
-DATA_PATH = "/data/s3905993/ECRHMAS/src/data/train_intent_labeled.jsonl"
-MODEL_SAVE_PATH = "/data/s3905993/ECRHMAS/src/models/intent_classifier"
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
 BATCH_SIZE = 16
 EPOCHS = 3
 LR = 2e-5
 MAX_LEN = 128
 
-<<<<<<< HEAD
 #loading labels
 with open(LABELS_PATH, "r") as f:
     INTENT_LABELS = json.load(f)
-=======
-#defining intent label set
-INTENT_LABELS = ["seeking_recommendation", "feedback", "chit_chat", "other"]
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
 label2idx = {label: i for i, label in enumerate(INTENT_LABELS)}
 idx2label = {i: label for label, i in label2idx.items()}
 
@@ -77,7 +66,7 @@ def evaluate(model, dataloader, device):
     print(classification_report(labels, preds, target_names=INTENT_LABELS, digits=3))
 
 def train():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")  # <--- FORCED CPU HERE
     tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
     model = RobertaForSequenceClassification.from_pretrained("roberta-base", num_labels=len(INTENT_LABELS)).to(device)
 
@@ -120,10 +109,6 @@ def train():
     os.makedirs(MODEL_SAVE_PATH, exist_ok=True)
     model.save_pretrained(MODEL_SAVE_PATH)
     tokenizer.save_pretrained(MODEL_SAVE_PATH)
-<<<<<<< HEAD
-=======
-
->>>>>>> fa533849599714b8f490bc557652c007aa45e497
     with open(os.path.join(MODEL_SAVE_PATH, "intent_labels.json"), "w") as f:
         json.dump(INTENT_LABELS, f)
     print(f"Model and label mapping saved to: {MODEL_SAVE_PATH}")
