@@ -1,10 +1,23 @@
-# Hierarchical Two-Agent Empathetic Conversational Recommender System
+# MA-ERGen: Multi-Agent Empathetic Response Generation for Conversational Systems
 
-This project is my MSc thesis implementation, exploring whether a hierarchical multi-agent structure (emotion & intent recognizer → knowledge-enhanced empathetic recommender) can outperform the single-agent approach in empathy and recommendation accuracy.
+This project is my MSc thesis implementation at Leiden University, exploring if a modular multi-agent architecture—**intent & emotion recognition → knowledge-aware empathetic response generation**—can outperform standard single-agent methods in empathy and recommendation quality.
 
 ## Structure
-- `data/`: Raw, processed, and external knowledge datasets
-- `src/agents/`: Modular agent definitions (emotion+intent recognizer, knowledge-enhanced recommender)
-- `scripts/`: Preprocessing, training, and evaluation scripts
-- `notebooks/`: Exploratory Jupyter notebooks
-- `experiments/` and `results/`: Logs, outputs, and metrics
+
+- **data/**: Redial, EmpatheticDialogues, movie KB, and processed files  
+- **src/agents/**: Modular agent definitions (intent/emotion recognizer, Llama/DialoGPT responder, RL critic)
+- **scripts/**: Preprocessing, training, evaluation scripts
+- **notebooks/**: Exploratory Jupyter notebooks
+- **experiments/** and **results/**: Logs, evaluation outputs, and metrics
+
+## Datasets Used
+
+- **Redial** (Movie recommendation dialogues)
+- **EmpatheticDialogues** (Emotion-labeled conversations)
+- Movie knowledge base (external data, entities, reviews)
+
+---
+
+All code and documentation are provided for reproducibility.  
+For issues, contact: barbarosisik [at] umail.leidenuniv.nl
+
